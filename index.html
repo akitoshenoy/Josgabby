@@ -1,1418 +1,684 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Josh &amp; Gabby: Our Story (Deluxe Edition)</title>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --ink: #1e112d;
-  --ink-card: #2b1a3f;
-  --rose: #ff6b8b;
-  --rose-dark: #c93b5b;
-  --cream: #fff1d6;
-  --gold: #ffd166;
-  --gold-dark: #b3862a;
-  --sky: #8fd3ff;
-  --grass: #6fbf73;
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body {
-  margin: 0;
-  height: 100%;
-  background: var(--ink);
-  color: var(--cream);
-  font: 400 18px/1.35 'Pixelify Sans', 'Courier New', monospace;
-  overflow: hidden;
-  -webkit-user-select: none;
-  user-select: none;
-  touch-action: manipulation;
-}
-#bg {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  image-rendering: pixelated;
-  z-index: 0;
-}
-/* Subtle CRT scanline & vignette overlay for high-end pixel aesthetic */
-#crt {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 5;
-  background:
-    radial-gradient(circle at center, transparent 60%, rgba(12, 6, 20, 0.55) 100%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
-}
-#app {
-  position: relative;
-  height: 100%;
-  z-index: 2;
-}
-/* Top Floating Audio & Photo Sync Bar */
-#topbar {
-  position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 10px);
-  right: 12px;
-  z-index: 20;
-  display: flex;
-  gap: 8px;
-}
-.icon-btn {
-  font: 700 14px 'Pixelify Sans', monospace;
-  padding: 6px 10px;
-  background: rgba(43, 26, 63, 0.85);
-  color: var(--gold);
-  border: 2px solid var(--cream);
-  border-radius: 6px;
-  box-shadow: 0 3px 0 rgba(0,0,0,0.4);
-  cursor: pointer;
-}
-.icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.4); }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TURFBOOKED // Kinetic Matchmaking Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-obsidian: #07090E;
+      --surface-slate: #0F141F;
+      --accent-volt: #CCFF00;
+      --accent-cyan: #00F0FF;
+      --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
 
-/* Screens */
-.s {
-  position: absolute;
-  inset: 0;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 16px;
-  text-align: center;
-  overflow-y: auto;
-}
-.s.on {
-  display: flex;
-  animation: screenFade 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-@keyframes screenFade {
-  from { opacity: 0; transform: scale(0.97) translateY(6px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-h1 {
-  margin: 0;
-  font-size: clamp(32px, 10vw, 52px);
-  line-height: 0.98;
-  color: var(--gold);
-  text-shadow: 0 4px 0 #7a2f6e, 0 6px 12px rgba(0,0,0,0.5);
-  letter-spacing: 1px;
-}
-.sub-badge {
-  display: inline-block;
-  background: var(--rose);
-  color: var(--cream);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 4px;
-  border: 2px solid var(--cream);
-  box-shadow: 0 3px 0 var(--rose-dark);
-}
-p { margin: 0; max-width: 36ch; }
+    body {
+      background-color: var(--bg-obsidian);
+      color: #F8FAFC;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+    }
 
-button {
-  font: 700 18px 'Pixelify Sans', 'Courier New', monospace;
-  color: var(--ink);
-  background: var(--gold);
-  border: 3px solid var(--ink);
-  box-shadow: 0 5px 0 var(--gold-dark), 0 0 0 3px var(--cream);
-  padding: 10px 22px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: transform 0.08s, filter 0.15s;
-}
-button:hover:not(:disabled) { filter: brightness(1.06); }
-button:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: 0 1px 0 var(--gold-dark), 0 0 0 3px var(--cream);
-}
-button:disabled {
-  background: #58486e;
-  box-shadow: 0 4px 0 #392b4c, 0 0 0 3px #85739e;
-  color: rgba(255, 241, 214, 0.45);
-  cursor: not-allowed;
-}
+    .font-display { font-family: 'Space Grotesk', sans-serif; }
+    .font-mono-tech { font-family: 'JetBrains Mono', monospace; }
 
-/* Polaroids */
-.pol {
-  margin: 0;
-  background: #fff;
-  padding: 8px 8px 26px;
-  box-shadow: 0 8px 0 rgba(0,0,0,0.35), 0 12px 24px rgba(0,0,0,0.4);
-  transform: rotate(-3deg);
-  width: min(60vw, 210px);
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.pol:hover { transform: rotate(0deg) scale(1.04) !important; z-index: 4; }
-.pol.lg { width: min(80vw, 290px); }
-.pol img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4/5;
-  object-fit: cover;
-  background: #3a2652;
-}
-.pol-cap {
-  position: absolute;
-  bottom: 4px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 700;
-}
+    /* Ambient Floodlight & Tactical Pitch Grid */
+    .pitch-bg {
+      background-image: 
+        radial-gradient(circle at 82% 14%, rgba(204, 255, 0, 0.12) 0%, transparent 42%),
+        radial-gradient(circle at 12% 75%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+    }
 
-/* Level Select Map */
-#lv {
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
-  width: min(100%, 400px);
-  padding: 6px 6px 24px;
-}
-.lvb {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-align: left;
-  width: 100%;
-  padding: 10px 14px;
-  position: relative;
-}
-.lvb b {
-  background: var(--ink);
-  color: var(--gold);
-  border-radius: 4px;
-  padding: 2px 9px;
-  font-size: 16px;
-}
-.lv-meta {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-.lv-sub {
-  font-size: 12px;
-  opacity: 0.8;
-  font-weight: 400;
-}
-.lv-stars {
-  margin-left: auto;
-  color: #d6204b;
-  font-size: 16px;
-  letter-spacing: 2px;
-}
+    /* Kinetic Text Mask Reveal */
+    .reveal-mask {
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+    .reveal-item {
+      display: inline-block;
+      transform: translateY(115%) rotate(2deg);
+      opacity: 0;
+      animation: textRise 0.95s var(--ease-expo) forwards;
+    }
+    @keyframes textRise {
+      to {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+    }
 
-/* Gameplay Stage */
-#play {
-  justify-content: space-between;
-  padding: 10px 12px calc(env(safe-area-inset-bottom, 0px) + 10px);
-  gap: 8px;
-}
-#hud-bar {
-  width: min(100%, 580px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  background: rgba(43, 26, 63, 0.9);
-  border: 2px solid var(--cream);
-  border-radius: 6px;
-  padding: 6px 10px;
-}
-#ttl {
-  font-weight: 700;
-  color: var(--gold);
-  font-size: clamp(14px, 4vw, 18px);
-  text-align: left;
-}
-#heart-counter {
-  color: var(--rose);
-  font-weight: 700;
-  font-size: 15px;
-  white-space: nowrap;
-}
-#stage {
-  position: relative;
-  width: min(100%, 580px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
-#cv {
-  width: 100%;
-  aspect-ratio: 16/9;
-  image-rendering: pixelated;
-  border: 4px solid var(--cream);
-  border-radius: 8px;
-  display: block;
-  background: #000;
-}
-#hint {
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  top: 8px;
-  font-size: 13px;
-  color: var(--cream);
-  text-shadow: 0 2px 0 #1e112d, 1px 1px 0 #1e112d;
-  pointer-events: none;
-  display: flex;
-  justify-content: space-between;
-}
-/* Progress Meter on Top of Stage */
-#prog-track {
-  width: min(100%, 580px);
-  height: 10px;
-  background: #140b21;
-  border: 2px solid var(--cream);
-  border-radius: 99px;
-  overflow: hidden;
-  position: relative;
-}
-#prog-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--rose), var(--gold));
-  transition: width 0.15s;
-}
+    /* 3D Perspective Turf Card */
+    .tilt-stage {
+      perspective: 1200px;
+    }
+    .tilt-card {
+      transform-style: preserve-3d;
+      transition: transform 0.12s ease-out, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .tilt-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(204, 255, 0, 0.18), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .tilt-card:hover::after {
+      opacity: 1;
+    }
 
-/* Win Overlay */
-#win {
-  position: absolute;
-  inset: 4px;
-  background: rgba(30, 17, 45, 0.88);
-  backdrop-filter: blur(2px);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border-radius: 4px;
-  z-index: 6;
-}
-#win.on {
-  display: flex;
-  animation: screenFade 0.3s ease;
-}
+    /* Interactive Football Spinner Container */
+    .spinner-ring {
+      animation: spinSlow 24s linear infinite;
+    }
+    .spinner-ring-reverse {
+      animation: spinSlow 16s linear infinite reverse;
+    }
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
 
-/* RPG Dialogue Box with Portrait */
-#dlg {
-  width: min(100%, 580px);
-  min-height: 98px;
-  background: var(--cream);
-  color: var(--ink);
-  border: 4px solid var(--ink);
-  box-shadow: 0 0 0 3px var(--cream), 0 6px 0 3px rgba(0,0,0,0.45);
-  border-radius: 8px;
-  padding: 10px 12px;
-  text-align: left;
-  font-size: clamp(15px, 4.2vw, 18px);
-  cursor: pointer;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  position: relative;
-}
-#dlg-port {
-  width: 56px;
-  height: 56px;
-  background: #2b1a3f;
-  border: 3px solid var(--ink);
-  border-radius: 6px;
-  flex-shrink: 0;
-  image-rendering: pixelated;
-}
-#dlg-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-#dlg-spk {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--rose-dark);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-#dlg-txt {
-  min-height: 2.5em;
-  line-height: 1.28;
-}
-#dlg-nxt {
-  position: absolute;
-  right: 10px;
-  bottom: 6px;
-  font-size: 12px;
-  color: var(--rose-dark);
-  font-weight: 700;
-  animation: blink 0.8s infinite;
-}
-@keyframes blink { 50% { opacity: 0.2; } }
+    /* Magnetic Pulse Ring */
+    @keyframes pulseBeacon {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      70% { transform: scale(1.8); opacity: 0; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    .beacon::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background: #CCFF00;
+      animation: pulseBeacon 2s infinite;
+    }
 
-/* Mobile Gamepad Controls */
-#pad {
-  display: flex;
-  width: min(100%, 580px);
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  touch-action: none;
-}
-.pad-group {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-#pad button {
-  min-width: 60px;
-  min-height: 56px;
-  font-size: 22px;
-  padding: 6px 12px;
-}
-#pad #B {
-  border-radius: 50%;
-  background: #ffd166;
-  min-width: 58px;
-  font-size: 19px;
-}
-#pad #A {
-  border-radius: 50%;
-  background: var(--rose);
-  color: var(--cream);
-  box-shadow: 0 5px 0 var(--rose-dark), 0 0 0 3px var(--cream);
-  min-width: 64px;
-}
-#pad #A:active {
-  box-shadow: 0 1px 0 var(--rose-dark), 0 0 0 3px var(--cream);
-}
-
-#big {
-  font-size: clamp(28px, 8.5vw, 44px);
-  color: var(--gold);
-  min-height: 2.8em;
-  max-width: 22ch;
-  text-shadow: 0 3px 0 #7a2f6e;
-}
-
-/* Ending Polaroid Wall */
-.wall {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px 12px;
-  justify-content: center;
-  width: min(100%, 420px);
-  padding: 6px 0;
-}
-.wall .pol {
-  width: calc(50% - 8px);
-  transform: rotate(2deg);
-}
-.wall .pol:nth-child(even) { transform: rotate(-2.5deg); }
-.wall .pol.w { width: 100%; transform: rotate(1deg); }
-
-/* Lightbox Modal for Polaroids */
-#lightbox {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 8, 26, 0.92);
-  z-index: 50;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  gap: 14px;
-}
-#lightbox.on { display: flex; animation: screenFade 0.25s ease; }
-</style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #07090E; }
+    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
+  </style>
 </head>
-<body>
+<body class="pitch-bg min-h-screen relative selection:bg-[#CCFF00] selection:text-black">
 
-<canvas id="bg" width="120" height="200"></canvas>
-<div id="crt"></div>
+  <!-- Particle Canvas for Swipe & Kick Sparks -->
+  <canvas id="fx-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
 
-<div id="topbar">
-  <button class="icon-btn" id="musicBtn" title="Toggle Chiptune Music">🎵 ON</button>
-  <button class="icon-btn" id="mapBtn" hidden onclick="build();show('map')">🗺️ Map</button>
-</div>
-
-<div id="app">
-  <!-- 1. LANDING SCREEN -->
-  <section id="land" class="s on">
-    <span class="sub-badge">★ DELUXE PIXEL EDITION ★</span>
-    <h1>Josh &amp;<br>Gabby</h1>
-    <p>Our story, one level at a time.</p>
-    <figure class="pol lg" onclick="openLightbox(0, 'Josh & Gabby ♥')">
-      <img id="img-hero" alt="Josh and Gabby smiling together" style="aspect-ratio:16/10;object-position:50% 40%">
-      <span class="pol-cap">Tap photo to zoom ♥</span>
-    </figure>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-      <button id="go">Press Start ▶</button>
-    </div>
-    <label style="font-size:12px;opacity:0.75;cursor:pointer;text-decoration:underline">
-      <input type="file" id="importHtml" accept=".html,.htm,image/*" multiple hidden>
-      📷 Load photos from your original HTML file
-    </label>
-  </section>
-
-  <!-- 2. "I LOVE YOU" INTRO MESSAGE -->
-  <section id="msg" class="s">
-    <div id="big"></div>
-    <button id="beg" hidden>Begin our story ♥</button>
-  </section>
-
-  <!-- 3. LEVEL SELECT MAP -->
-  <section id="map" class="s" style="justify-content:flex-start">
-    <h1 style="font-size:30px;margin-top:28px">Choose a Chapter</h1>
-    <p style="font-size:14px;opacity:0.85">Collect floating hearts &amp; relive every memory</p>
-    <div id="lv"></div>
-  </section>
-
-  <!-- 4. HIGH-END PIXEL GAMEPLAY -->
-  <section id="play" class="s">
-    <div id="hud-bar">
-      <div id="ttl">Level 1</div>
-      <div id="heart-counter">♥ 0/3</div>
-    </div>
-    <div id="prog-track"><div id="prog-fill"></div></div>
-
-    <div id="stage">
-      <canvas id="cv" width="320" height="180"></canvas>
-      <div id="hint">
-        <span id="hint-txt">Hold ◀ ▶ to walk • ▲ to Jump</span>
-        <span id="stage-year">2020</span>
-      </div>
-      <div id="win">
-        <h1 style="font-size:28px">Chapter Complete! ♥</h1>
-        <p id="win-sub">Josh found Gabby!</p>
-        <div style="display:flex;gap:10px">
-          <button onclick="start(cur)" style="background:var(--cream)">Replay</button>
-          <button id="nx">Continue ▶</button>
+  <!-- Top Navigation & Interactive Top-Right Football Spinner Widget -->
+  <header class="sticky top-0 z-40 backdrop-blur-xl bg-[#07090E]/75 border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-5 h-24 flex items-center justify-between">
+      
+      <!-- Brand Mark -->
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-[#CCFF00] flex items-center justify-center shadow-[0_0_25px_rgba(204,255,0,0.4)]">
+          <svg class="w-6 h-6 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M4 6h16M4 12h10M4 18h16" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="font-display font-bold text-xl tracking-tight flex items-center gap-2">
+            TURFBOOKED
+            <span class="text-[10px] font-mono-tech px-2 py-0.5 rounded bg-white/10 text-[#CCFF00] border border-[#CCFF00]/30">BLR // LIVE</span>
+          </div>
+          <p class="text-xs text-slate-400 font-mono-tech">INSTANT 5v5 & 7v7 MATCHMAKING</p>
         </div>
       </div>
-    </div>
 
-    <div id="dlg">
-      <canvas id="dlg-port" width="28" height="28"></canvas>
-      <div id="dlg-body">
-        <div id="dlg-spk">JOSH</div>
-        <div id="dlg-txt">Walk right to begin this chapter...</div>
+      <!-- Center Live Telemetry Pill -->
+      <div class="hidden md:flex items-center gap-6 px-5 py-2 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono-tech">
+        <div class="flex items-center gap-2">
+          <span class="relative w-2 h-2 rounded-full bg-[#CCFF00] beacon"></span>
+          <span class="text-slate-300">KORAMANGALA / INDIRANAGAR:</span>
+          <span class="text-[#CCFF00] font-bold">14 LOBBIES OPEN</span>
+        </div>
+        <span class="text-white/20">|</span>
+        <div class="text-slate-400">AVG SPLIT: <span class="text-white font-bold">₹145 / PLAYER</span></div>
       </div>
-      <div id="dlg-nxt">TAP / A ▼</div>
-    </div>
 
-    <div id="pad">
-      <div class="pad-group">
-        <button id="bL" aria-label="Walk left">&#9664;</button>
-        <button id="bU" aria-label="Jump">&#9650;</button>
-        <button id="bR" aria-label="Walk right">&#9654;</button>
+      <!-- TOP-RIGHT INTERACTIVE FIDGET-SPINNER FOOTBALL WIDGET -->
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:block text-right">
+          <div class="text-[10px] font-mono-tech text-slate-400 uppercase tracking-wider">Flick / Swipe Ball</div>
+          <div id="rpm-readout" class="text-xs font-mono-tech text-[#CCFF00] font-bold">0 RPM // IDLE</div>
+        </div>
+
+        <div id="football-widget" class="relative w-16 h-16 flex items-center justify-center cursor-grab active:cursor-grabbing touch-none group" title="Swipe or flick vertically, horizontally, or diagonally!">
+          <!-- Outer Orbital Telemetry Rings -->
+          <svg class="absolute inset-0 w-full h-full spinner-ring opacity-40 group-hover:opacity-90 transition-opacity" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="46" fill="none" stroke="#CCFF00" stroke-width="1" stroke-dasharray="10 8 2 8"/>
+          </svg>
+          <svg class="absolute inset-1 w-[calc(100%-8px)] h-[calc(100%-8px)] spinner-ring-reverse opacity-30" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#00F0FF" stroke-width="1" stroke-dasharray="4 12"/>
+          </svg>
+
+          <!-- 3D Gyroscopic Football Core -->
+          <div id="football-core" class="w-11 h-11 rounded-full bg-gradient-to-br from-white via-slate-200 to-slate-500 shadow-[0_0_24px_rgba(204,255,0,0.45)] flex items-center justify-center relative overflow-hidden will-change-transform">
+            <svg id="football-pattern" class="w-12 h-12 text-[#0B0F17] will-change-transform" viewBox="0 0 64 64" fill="currentColor">
+              <!-- Center Pentagon -->
+              <polygon points="32,20 43,28 39,41 25,41 21,28"/>
+              <!-- Peripheral Pentagons -->
+              <polygon points="32,2 41,8 37,14 27,14 23,8"/>
+              <polygon points="58,22 55,33 48,30 49,21 54,18"/>
+              <polygon points="49,54 39,57 38,49 45,44 51,48"/>
+              <polygon points="15,54 13,48 19,44 26,49 25,57"/>
+              <polygon points="6,22 10,18 15,21 16,30 9,33"/>
+              <!-- Connecting Seams -->
+              <path d="M32 20V14M43 28L49 25M39 41L43 46M25 41L21 46M21 28L15 25" stroke="#0B0F17" stroke-width="2.2"/>
+            </svg>
+            <!-- Specular Rim Light -->
+            <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/30 to-white/70 pointer-events-none"></div>
+          </div>
+        </div>
       </div>
-      <div class="pad-group">
-        <button id="B" aria-label="Send Heart" title="Send Love Emote">♥</button>
-        <button id="A" aria-label="Advance">A</button>
+
+    </div>
+  </header>
+
+  <!-- Main Stage -->
+  <main class="max-w-7xl mx-auto px-5 pt-10 pb-24">
+
+    <!-- Hero Choreography -->
+    <section class="grid lg:grid-cols-12 gap-10 items-center mb-16">
+      <div class="lg:col-span-7 space-y-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#CCFF00]/10 border border-[#CCFF00]/30 text-[#CCFF00] text-xs font-mono-tech">
+          <span>⚡ ZERO-FLAKER GUARANTEE</span>
+          <span class="text-white/40">•</span>
+          <span>BENGALURU TURF NETWORK</span>
+        </div>
+
+        <h1 class="font-display font-bold text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tight">
+          <span class="reveal-mask"><span class="reveal-item" style="animation-delay: 0.05s">STOP CHASING</span></span><br/>
+          <span class="reveal-mask"><span class="reveal-item text-transparent bg-clip-text bg-gradient-to-r from-[#CCFF00] via-emerald-300 to-[#00F0FF]" style="animation-delay: 0.16s">10TH PLAYERS.</span></span><br/>
+          <span class="reveal-mask"><span class="reveal-item" style="animation-delay: 0.27s">JUST KICK OFF.</span></span>
+        </h1>
+
+        <p class="text-slate-400 text-lg max-w-xl leading-relaxed opacity-0 animate-[fadeIn_0.8s_ease_0.45s_forwards]">
+          Auto-fill missing squad spots in 90 seconds, split turf fees down to the rupee via instant UPI, and lock prime floodlit slots across Bengaluru.
+        </p>
+
+        <!-- Interactive Filter & Quick-Launch Controls -->
+        <div class="flex flex-wrap items-center gap-4 pt-2">
+          <button id="btn-instant-match" class="magnetic-btn group relative px-7 py-4 rounded-2xl bg-[#CCFF00] text-black font-display font-bold text-base tracking-wide shadow-[0_0_35px_rgba(204,255,0,0.35)] hover:shadow-[0_0_50px_rgba(204,255,0,0.65)] transition-all active:scale-95 flex items-center gap-3 overflow-hidden">
+            <span class="relative z-10">AUTO-JOIN TONIGHT'S 9 PM LOBBY</span>
+            <svg class="w-5 h-5 relative z-10 transition-transform duration-300 group-hover:translate-x-1.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          </button>
+
+          <div class="flex items-center gap-2 bg-white/[0.04] p-1.5 rounded-2xl border border-white/10">
+            <button data-format="ALL" class="format-pill active px-4 py-2.5 rounded-xl text-xs font-mono-tech font-bold bg-white text-black transition-all">ALL TURFS</button>
+            <button data-format="5v5" class="format-pill px-4 py-2.5 rounded-xl text-xs font-mono-tech font-bold text-slate-400 hover:text-white transition-all">5v5</button>
+            <button data-format="7v7" class="format-pill px-4 py-2.5 rounded-xl text-xs font-mono-tech font-bold text-slate-400 hover:text-white transition-all">7v7</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Live Tactical Radar / Matchmaking Visualizer -->
+      <div class="lg:col-span-5">
+        <div class="relative rounded-3xl bg-[#0F141F]/90 border border-white/10 p-6 backdrop-blur-xl shadow-2xl overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-mono-tech text-slate-400">LIVE SQUAD RADAR // HSR & KORAMANGALA</span>
+            <span class="text-xs font-mono-tech text-[#00F0FF] animate-pulse">● SCANNING</span>
+          </div>
+
+          <!-- Animated SVG Tactical Pitch Radar -->
+          <div class="relative h-64 rounded-2xl bg-[#080B12] border border-white/10 overflow-hidden flex items-center justify-center">
+            <!-- Pitch Markings -->
+            <svg class="w-full h-full opacity-30" viewBox="0 0 400 240" fill="none" stroke="#CCFF00" stroke-width="1.2">
+              <rect x="16" y="16" width="368" height="208" rx="8"/>
+              <line x1="200" y1="16" x2="200" y2="224"/>
+              <circle cx="200" cy="120" r="36"/>
+              <rect x="16" y="68" width="54" height="104"/>
+              <rect x="330" y="68" width="54" height="104"/>
+            </svg>
+
+            <!-- Sweeping Radar Beam -->
+            <div class="absolute w-72 h-72 rounded-full border border-[#CCFF00]/20 animate-ping" style="animation-duration: 3.5s;"></div>
+
+            <!-- Interactive Live Player Nodes -->
+            <div class="absolute top-12 left-16 flex items-center gap-2 bg-black/80 border border-[#CCFF00]/50 px-2.5 py-1 rounded-full text-[11px] font-mono-tech shadow-lg animate-bounce" style="animation-duration: 2.8s;">
+              <span class="w-2 h-2 rounded-full bg-[#CCFF00]"></span>
+              <span>Aarav (GK) • 0.8km</span>
+            </div>
+
+            <div class="absolute bottom-14 right-12 flex items-center gap-2 bg-black/80 border border-[#00F0FF]/50 px-2.5 py-1 rounded-full text-[11px] font-mono-tech shadow-lg animate-bounce" style="animation-duration: 3.2s; animation-delay: 0.4s;">
+              <span class="w-2 h-2 rounded-full bg-[#00F0FF]"></span>
+              <span>Rohan (LW) • 1.2km</span>
+            </div>
+
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3.5 py-2 rounded-xl bg-[#CCFF00] text-black font-mono-tech font-bold text-xs shadow-[0_0_25px_rgba(204,255,0,0.5)]">
+              9/10 LOCKED • 1 SPOT LEFT
+            </div>
+          </div>
+
+          <!-- Instant Split Bar -->
+          <div class="mt-4 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono-tech">
+            <div>
+              <div class="text-slate-400">TURF TOTAL (60 MIN)</div>
+              <div class="text-white font-bold text-sm">₹1,600</div>
+            </div>
+            <div class="text-right">
+              <div class="text-slate-400">YOUR SHARE (10-WAY SPLIT)</div>
+              <div class="text-[#CCFF00] font-bold text-sm">₹160.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3D Tilt Turf Cards Grid -->
+    <section>
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h2 class="font-display font-bold text-2xl sm:text-3xl">PRIME BENGALURU ARENAS</h2>
+          <p class="text-slate-400 text-sm">Move cursor or tilt cards to inspect real-time slot liquidity</p>
+        </div>
+        <span class="text-xs font-mono-tech text-[#CCFF00]">SORTED BY: KICKOFF TIME</span>
+      </div>
+
+      <div id="turf-grid" class="grid md:grid-cols-3 gap-6">
+        <!-- Cards injected via JS for dynamic filtering & 3D tilt physics -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Slide-Over Split-Pay & Squad Drawer -->
+  <div id="booking-drawer" class="fixed inset-0 z-50 pointer-events-none">
+    <div id="drawer-backdrop" class="absolute inset-0 bg-black/75 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+    <div id="drawer-panel" class="absolute right-0 top-0 h-full w-full max-w-md bg-[#0C101A] border-l border-white/15 p-6 flex flex-col justify-between translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-white/10">
+          <span class="font-mono-tech text-xs text-[#CCFF00]">MATCHMAKING LOBBY // INSTANT LOCK</span>
+          <button id="close-drawer" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">✕</button>
+        </div>
+
+        <div class="mt-6">
+          <h3 id="drawer-turf-name" class="font-display font-bold text-2xl">Tiento Sports Arena</h3>
+          <p id="drawer-turf-meta" class="text-xs font-mono-tech text-slate-400 mt-1">INDRA NAGAR • FIFA PRO TURF • 21:00 IST</p>
+        </div>
+
+        <!-- Animated Squad Roster Slots -->
+        <div class="mt-6 space-y-2.5">
+          <div class="flex justify-between text-xs font-mono-tech text-slate-400">
+            <span>CONFIRMED SQUAD (UPI ESCROW LOCKED)</span>
+            <span id="squad-count" class="text-[#CCFF00]">9 / 10</span>
+          </div>
+          <div id="squad-list" class="grid grid-cols-2 gap-2 pt-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Split Slider & Confirm Button -->
+      <div class="pt-5 border-t border-white/10 space-y-4">
+        <div class="p-4 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-400 font-mono-tech">YOUR INSTANT UPI SHARE</div>
+            <div id="drawer-price" class="text-2xl font-display font-bold text-[#CCFF00]">₹160</div>
+          </div>
+          <div class="text-right text-[11px] font-mono-tech text-emerald-400">
+            ✓ NO-SHOW REFUND<br/>PROTECTED
+          </div>
+        </div>
+
+        <button id="confirm-slot-btn" class="w-full py-4 rounded-2xl bg-[#CCFF00] text-black font-display font-bold text-base tracking-wide hover:brightness-110 active:scale-95 transition-all shadow-[0_0_30px_rgba(204,255,0,0.4)]">
+          LOCK FINAL SPOT & SPLIT PAY
+        </button>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- 5. ANNIVERSARY FINALE & POLAROID WALL -->
-  <section id="end" class="s" style="justify-content:flex-start">
-    <span class="sub-badge" style="margin-top:24px">HAPPY ANNIVERSARY</span>
-    <h1 style="font-size:34px;margin-top:4px">Happy Anniversary, Gabby</h1>
-    <p style="font-size:26px;color:var(--rose);font-weight:700">I love you.</p>
-    <p>4 years to everyone. 6 years to us.</p>
+  <script>
+    // =========================================================================
+    // 1. TOP-RIGHT FIDGET-SPINNER FOOTBALL PHYSICS ENGINE (Multi-Axis Swipe)
+    // =========================================================================
+    const widget = document.getElementById('football-widget');
+    const ballCore = document.getElementById('football-core');
+    const ballPattern = document.getElementById('football-pattern');
+    const rpmReadout = document.getElementById('rpm-readout');
 
-    <div class="wall">
-      <figure class="pol" onclick="openLightbox(1, 'Mirror Selfie Kiss ♥')">
-        <img id="img-end1" alt="Josh kissing Gabby’s cheek in a mirror selfie" style="object-position:55% 45%">
-        <span class="pol-cap">Sweetest Kiss ♥</span>
-      </figure>
-      <figure class="pol" onclick="openLightbox(2, 'Close Together at Night ♥')">
-        <img id="img-end2" alt="Gabby and Josh close together at night" style="object-position:30% 40%">
-        <span class="pol-cap">Night Memories ✨</span>
-      </figure>
-      <figure class="pol w" onclick="openLightbox(3, 'Beach Days Together ♥')">
-        <img id="img-end3" alt="Josh and Gabby at the beach" style="aspect-ratio:4/3;object-position:50% 50%">
-        <span class="pol-cap">Winnipeg ↔ NY to The Beach 🌊</span>
-      </figure>
-      <figure class="pol" onclick="openLightbox(4, 'Helmet Buddies ♥')">
-        <img id="img-end4" alt="Josh and Gabby in motorcycle helmets" style="object-position:50% 50%">
-        <span class="pol-cap">Ride or Die 🏍️</span>
-      </figure>
-      <figure class="pol" onclick="openLightbox(5, 'My Favorite Girl ♥')">
-        <img id="img-end5" alt="Gabby with her tongue out in a seal cutout" style="object-position:50% 20%">
-        <span class="pol-cap">Cutest Seal 🦭</span>
-      </figure>
-    </div>
+    let rotZ = 0, rotX = 0, rotY = 0;
+    let velZ = 1.2, velX = 0, velY = 0; // Gentle idle spin
+    let isDragging = false;
+    let lastX = 0, lastY = 0;
 
-    <p style="margin-top:6px">I’m so grateful to have you in my life, Gabriela George. Here’s to every level still ahead.</p>
-    <p style="color:var(--gold);font-weight:700">Always yours, Josh Joseph ♥</p>
-    <div style="display:flex;gap:10px;margin-bottom:24px">
-      <button id="again">Replay Chapters</button>
-    </div>
-  </section>
-</div>
-
-<!-- Lightbox for Polaroids -->
-<div id="lightbox" onclick="this.classList.remove('on')">
-  <figure class="pol lg" style="transform:rotate(0deg);width:min(88vw,350px)">
-    <img id="lb-img" src="" alt="Zoomed Memory" style="aspect-ratio:4/5;object-fit:cover">
-    <span class="pol-cap" id="lb-cap"></span>
-  </figure>
-  <p style="font-size:14px;opacity:0.8">Tap anywhere to close</p>
-</div>
-
-<script>
-const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const rm = matchMedia('(prefers-reduced-motion:reduce)').matches;
-
-/* ============================================================
-   1. RETRO WEB AUDIO CHIPTUNE & SFX ENGINE
-   ============================================================ */
-let actx = null, musicOn = true, bgmTimer = null, noteIdx = 0;
-const MELODY = [523.25, 659.25, 783.99, 659.25, 698.46, 880.00, 783.99, 659.25, 587.33, 698.46, 880.00, 698.46, 523.25, 659.25, 783.99, 1046.50];
-
-function initAudio() {
-  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-  if (actx.state === 'suspended') actx.resume();
-}
-
-function sfx(freq = 600, dur = 0.06, type = 'square', vol = 0.04, slide = 0) {
-  if (!musicOn) return;
-  try {
-    initAudio();
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.type = type;
-    o.frequency.setValueAtTime(freq, actx.currentTime);
-    if (slide) o.frequency.linearRampToValueAtTime(freq + slide, actx.currentTime + dur);
-    g.gain.setValueAtTime(vol, actx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
-    o.connect(g); g.connect(actx.destination);
-    o.start(); o.stop(actx.currentTime + dur);
-  } catch(e) {}
-}
-
-function startBGM() {
-  if (bgmTimer) return;
-  bgmTimer = setInterval(() => {
-    if (!musicOn || scr !== 'play') return;
-    const f = MELODY[noteIdx % MELODY.length];
-    sfx(f * 0.5, 0.22, 'triangle', 0.018);
-    noteIdx++;
-  }, 320);
-}
-
-$('#musicBtn').onclick = () => {
-  musicOn = !musicOn;
-  $('#musicBtn').textContent = musicOn ? '🎵 ON' : '🔇 OFF';
-  if (musicOn) sfx(880, 0.08, 'triangle');
-};
-
-/* ============================================================
-   2. ALL 8 STORY LEVELS (YOUR EXACT STORY + ENHANCED PROPS)
-   ============================================================ */
-const L = [
-  {
-    t: "Winnipeg to Kerala", sub: "Grade 6 • Thodupuzha, India", yr: "Ch. 1 • TVIS",
-    d: "snow", outfit: "tvis", sk: ["#72b6ff", "#fff1d6"], gr: "#eef6fb",
-    props: ["✈️", "🌴", "🏫"],
-    l: [
-      "Grade 6 in Winnipeg, Manitoba. Then my parents said: “Let’s move to India!”",
-      "Kerala. Thodupuzha. The Village International School (TVIS). I had to sit back in Grade 6...",
-      "That same year, a girl from Rockland County, New York walked into Grade 7 at the very same school."
-    ]
-  },
-  {
-    t: "The Assembly", sub: "White Shirts & Gray Collars", yr: "Ch. 2 • Assembly",
-    d: "school", outfit: "tvis", sk: ["#63b8ff", "#e6f6ff"], gr: "#9e9e9e",
-    props: ["🧍‍♂️", "🎙️", "💘"],
-    l: [
-      "Morning assembly in our white shirts and gray collars. The 12th graders stood right in front of the 6th graders so I couldn’t see.",
-      "Suddenly, an American accent—a voice like mine after so long—spoke up. An angelic voice.",
-      "Then I saw her on stage. And I fell in love with Gabby. Boom. Right away."
-    ]
-  },
-  {
-    t: "A Quiet Prayer", sub: "Church Candles in Kerala", yr: "Ch. 3 • The Prayer",
-    d: "night", outfit: "tvis", sk: ["#120930", "#4a2c7a"], gr: "#2a2448",
-    props: ["🕯️", "⛪", "🙏"],
-    l: [
-      "I went after her, but I was so shy and nervous because I was chubby and didn’t feel like I looked ideal at the time.",
-      "I used to go to church in India and pray: “Jesus, please let her be my girl.”",
-      "I didn’t know that prayer was already on its way."
-    ]
-  },
-  {
-    t: "Worlds Apart", sub: "COVID & The Grade 9 Glow-Up", yr: "Ch. 4 • Winnipeg",
-    d: "snow", outfit: "casual", sk: ["#8fa8ff", "#eef4ff"], gr: "#dfe8f2",
-    props: ["😷", "🏋️", "💭"],
-    l: [
-      "COVID happened and I moved back to Winnipeg, Manitoba. I started living life again and forgot all about India.",
-      "By 9th grade I lost a lot of weight, started looking better, chilling low-key, and talking to girls on my phone.",
-      "Then one random day while I was just sitting there, Gabby popped right into my head for no reason."
-    ]
-  },
-  {
-    t: "The Mutuals", sub: "“Hey, you go to TVIS?”", yr: "Ch. 5 • Happiest Day",
-    d: "phone", outfit: "casual", sk: ["#21174f", "#6a4bb0"], gr: "#2b2352",
-    props: ["🔍", "📱", "💌"],
-    l: [
-      "I thought: “Wait—my friend’s sister’s friend is Gabby! Oh sh*t, let me check her mutuals!”",
-      "I found her account! You don’t understand how happy I was—probably the happiest day of my life.",
-      "Follow request sent. Text sent: “Hey, you go to TVIS?” That’s the story of how we met again."
-    ]
-  },
-  {
-    t: "Long Distance", sub: "Winnipeg ↔ Rockland County, NY", yr: "Ch. 6 • 3 Days Later",
-    d: "phone", outfit: "casual", sk: ["#3a2a7a", "#d46aa0"], gr: "#2b2352",
-    props: ["💬", "💔", "✨"],
-    l: [
-      "Nicole got involved, and we texted nonstop between Winnipeg and Rockland County. Then Gabby said we were in a “situationship”—first time I ever heard that word!",
-      "She always said “I love you”... until she said it was all platonic, which broke me. I took a 3-day gap from her.",
-      "Three days later, just like Jesus Christ, Gabriela George rose again from the dead into my heart—and we started dating!"
-    ]
-  },
-  {
-    t: "Uphills & Downhills", sub: "Through Every Storm Together", yr: "Ch. 7 • Real Love",
-    d: "rain", outfit: "casual", sk: ["#556482", "#c8d6eb"], gr: "#4e7a52",
-    props: ["⚡", "🌧️", "🌈"],
-    l: [
-      "From there it’s been a lot of arguments and fights—a lot of good moments and bad moments.",
-      "But at the end of every single day, we just love each other so much.",
-      "Every uphill and downhill was worth climbing with you."
-    ]
-  },
-  {
-    t: "2026", sub: "19 Turning 20 • Forever Grateful", yr: "Ch. 8 • 2026 Magic",
-    d: "hearts", outfit: "casual", sk: ["#180d3d", "#e0607e"], gr: "#3f7a4a",
-    props: ["👩‍❤️‍👨", "🏡", "🎆"],
-    l: [
-      "Oh my God, 2026 has been the craziest year for both Josh and Gabby! We finally got to see each other so much and felt like a normal couple.",
-      "Our families are so close to each other at this point—they know each other so well.",
-      "I’m 19 turning 20, you’re 19, and I’m just endlessly grateful to have Gabriela George in my life. ♥"
-    ]
-  }
-];
-
-/* ============================================================
-   3. GAME STATE & PHYSICS
-   ============================================================ */
-let prog = 0;
-try { prog = +localStorage.getItem('jg') || 0; } catch(e) {}
-
-let scr = 'land', cur = 0, px = 16, py = 0, vy = 0, beat = 0;
-let dlg = false, won = false, dir = 0, face = false, t = 0, ty = false, tm;
-let iris = 1, irisTarget = 1; // Iris transition radius (0 to 1)
-let camShake = 0;
-let levelHearts = [];
-let collectedCount = 0;
-const P = [], FW = [];
-const cv = $('#cv').getContext('2d'), bc = $('#bg').getContext('2d'), pc = $('#dlg-port').getContext('2d');
-
-/* ============================================================
-   4. PIXEL ART SPRITE ENGINE (16x20 + OUTFITS + ANIMATIONS)
-   ============================================================ */
-const HR = ["01100110","11111111","11111111","01111110","00111100","00011000"];
-function H(c, x, y, z, col) {
-  c.fillStyle = col;
-  HR.forEach((r, j) => [...r].forEach((k, i) => {
-    if (k === '1') c.fillRect((x + i * z) | 0, (y + j * z) | 0, z, z);
-  }));
-}
-
-// High-Detail Pixel Character Renderer (Supports TVIS School Uniform & Casual Glow-Up!)
-function drawPixelChar(c, x, y, isGabby, outfit, flip, walkPhase, blink) {
-  c.save();
-  const z = 2; // 2x2 pixel blocks
-  // Ground shadow
-  c.fillStyle = 'rgba(0,0,0,0.32)';
-  c.fillRect((x + 2) | 0, (y + 27 - py) | 0, 16, 3);
-
-  const legL = walkPhase === 1 ? -2 : (walkPhase === 3 ? 2 : 0);
-  const legR = -legL;
-  const armSwing = walkPhase === 1 ? 2 : (walkPhase === 3 ? -2 : 0);
-
-  const palette = {
-    h: isGabby ? '#2b192e' : '#231924', // Hair
-    s: isGabby ? '#f3c6a5' : '#e0a982', // Skin
-    e: blink ? (isGabby ? '#f3c6a5' : '#e0a982') : '#1e112d', // Eyes (blinkable!)
-    k: '#ff8da6', // Blush
-    // Outfit colors: TVIS (White shirt + gray collar + gray pants/skirt) vs Casual
-    t: outfit === 'tvis' ? '#ffffff' : (isGabby ? '#ff6b8b' : '#4a7bd8'),
-    c: outfit === 'tvis' ? '#8c96a6' : (isGabby ? '#ff8fa8' : '#fff1d6'),
-    p: outfit === 'tvis' ? '#636b78' : (isGabby ? '#ff4d73' : '#2c385e'),
-    d: '#1e112d'
-  };
-
-  const grid = isGabby ? [
-    "..hhhhhh..",
-    ".hhhhhhhh.",
-    "hhhhhhhhhh",
-    "hhsssssshh",
-    "hhsesseshh",
-    "hhskssskhh",
-    "hh.cccc.hh",
-    "hhhtttthhh",
-    ".stttttts.",
-    "..pppppp..",
-    ".pppppppp.",
-    "..ss..ss..",
-    "..dd..dd.."
-  ] : [
-    "..hhhhhh..",
-    ".hhhhhhhh.",
-    ".hssssssh.",
-    ".ssessess.",
-    ".ssssssss.",
-    "..cccccc..",
-    ".tttttttt.",
-    "stttttttts",
-    "..tttttt..",
-    "..pppppp..",
-    "..pp..pp..",
-    "..dd..dd.."
-  ];
-
-  grid.forEach((row, j) => {
-    [...row].forEach((ch, i) => {
-      if (ch === '.') return;
-      c.fillStyle = palette[ch];
-      const gx = flip ? (9 - i) : i;
-      let dy = 0;
-      if (j >= 10 && i < 5) dy = legL;
-      if (j >= 10 && i >= 5) dy = legR;
-      if ((j === 7 || j === 8) && (i <= 1 || i >= 8)) dy = armSwing;
-      c.fillRect((x + gx * z) | 0, (y + j * z + dy) | 0, z, z);
-    });
-  });
-  c.restore();
-}
-
-// Draw Portrait inside Dialogue Box
-function drawPortrait(isGabby, outfit) {
-  pc.clearRect(0, 0, 28, 28);
-  pc.fillStyle = isGabby ? '#4a2545' : '#26355c';
-  pc.fillRect(0, 0, 28, 28);
-  drawPixelChar(pc, 4, 3, isGabby, outfit, false, 0, false);
-}
-
-/* ============================================================
-   5. HIGH-END PARALLAX & MOTION GRAPHICS SCENE RENDERER
-   ============================================================ */
-function scene(c, v, n) {
-  const W = 320, H_CV = 180, GY = 136;
-  const par = px * 0.22; // Parallax camera offset
-
-  // 1. Sky Gradient
-  const g = c.createLinearGradient(0, 0, 0, GY);
-  g.addColorStop(0, v.sk[0]);
-  g.addColorStop(1, v.sk[1]);
-  c.fillStyle = g;
-  c.fillRect(0, 0, W, H_CV);
-
-  const d = v.d;
-
-  // 2. Stars & Moon (Night / Hearts / Phone)
-  if (d === 'night' || d === 'hearts' || d === 'phone') {
-    for (let i = 0; i < 45; i++) {
-      const tw = (Math.sin(n * 0.08 + i) + 1) * 0.5;
-      c.fillStyle = `rgba(255,255,255,${0.25 + tw * 0.75})`;
-      const sx = ((i * 53 - par * 0.2) % W + W) % W;
-      const sy = (i * 29) % 95;
-      c.fillRect(sx | 0, sy | 0, i % 5 === 0 ? 2 : 1, i % 5 === 0 ? 2 : 1);
-    }
-    if (d === 'night') {
-      // Glowing Crescent Moon
-      c.fillStyle = 'rgba(255, 233, 168, 0.15)';
-      c.beginPath(); c.arc(260 - par * 0.1, 28, 22, 0, Math.PI * 2); c.fill();
-      c.fillStyle = '#ffe9a8';
-      c.beginPath(); c.arc(260 - par * 0.1, 28, 12, 0, Math.PI * 2); c.fill();
-      c.fillStyle = v.sk[0];
-      c.beginPath(); c.arc(265 - par * 0.1, 25, 10, 0, Math.PI * 2); c.fill();
-    }
-  }
-
-  // 3. Far Parallax Mountains / City Skyline
-  c.fillStyle = d === 'snow' ? '#b8cde6' : 'rgba(25, 14, 45, 0.35)';
-  c.beginPath();
-  c.moveTo(0, GY);
-  for (let x = 0; x <= W; x += 40) {
-    const mh = 32 + Math.sin((x + par * 0.4) * 0.04) * 18 + Math.cos(x * 0.09) * 10;
-    c.lineTo(x, GY - mh);
-  }
-  c.lineTo(W, GY);
-  c.fill();
-
-  // 4. Stage-Specific High-End Setpieces
-  if (d === 'school') {
-    // TVIS Kerala Palm Trees in Parallax
-    for (let i = 0; i < 3; i++) {
-      const tx = 30 + i * 115 - par * 0.35;
-      c.fillStyle = '#6e473b';
-      c.fillRect(tx, GY - 48, 4, 48);
-      c.fillStyle = '#3b8c52';
-      c.fillRect(tx - 10, GY - 52, 24, 6);
-      c.fillRect(tx - 6, GY - 56, 16, 4);
-    }
-    // TVIS School Building + Assembly Stage
-    const bx = 135 - par * 0.15;
-    c.fillStyle = '#d9825b';
-    c.fillRect(bx, 48, 150, 88);
-    c.fillStyle = '#fff1d6';
-    c.fillRect(bx - 4, 42, 158, 7);
-    // School Banner
-    c.fillStyle = '#2b1a3f';
-    c.fillRect(bx + 42, 53, 66, 12);
-    c.fillStyle = '#ffd166';
-    c.font = '8px monospace';
-    c.fillText('T V I S', bx + 58, 62);
-    // Windows
-    c.fillStyle = '#8fd3ff';
-    for (let i = 0; i < 6; i++) {
-      c.fillRect(bx + 12 + i * 22, 70, 12, 14);
-      c.fillRect(bx + 12 + i * 22, 94, 12, 14);
-    }
-    // Tall 12th Graders Silhouettes standing in front of Grade 6
-    for (let i = 0; i < 4; i++) {
-      const sx = 95 + i * 18 - par * 0.1;
-      c.fillStyle = '#ffffff';
-      c.fillRect(sx, GY - 28, 10, 14);
-      c.fillStyle = '#555d6b';
-      c.fillRect(sx + 1, GY - 14, 8, 14);
-      c.fillStyle = '#231924';
-      c.fillRect(sx + 1, GY - 36, 8, 8);
-    }
-    // Waving School Flag
-    c.fillStyle = '#fff';
-    c.fillRect(58 - par * 0.2, 34, 3, 102);
-    c.fillStyle = '#ff6b8b';
-    c.fillRect(61 - par * 0.2, 34, 18, 10 + Math.sin(n / 8) * 2);
-  }
-
-  if (d === 'night') {
-    // Kerala Church Silhouette & Stained Glass Glow
-    const cx = 145 - par * 0.15;
-    c.fillStyle = '#1f1538';
-    c.fillRect(cx, 54, 110, 82);
-    // Spire & Cross
-    c.fillRect(cx + 43, 24, 24, 30);
-    c.fillStyle = '#ffd166';
-    c.fillRect(cx + 53, 10, 4, 16);
-    c.fillRect(cx + 48, 15, 14, 4);
-    // Glowing Stained Glass Windows
-    for (let i = 0; i < 3; i++) {
-      const flicker = 0.75 + Math.sin(n * 0.15 + i) * 0.2;
-      c.fillStyle = `rgba(255, 209, 102, ${flicker})`;
-      c.fillRect(cx + 16 + i * 32, 72, 14, 28);
-    }
-    // Floating Prayer Fireflies / Candle Sparks
-    for (let i = 0; i < 18; i++) {
-      const fx = (i * 47 + Math.sin(n * 0.03 + i) * 15) % W;
-      const fy = GY - 10 - ((n * 0.4 + i * 19) % 90);
-      c.fillStyle = i % 2 ? '#ffd166' : '#ff6b8b';
-      c.fillRect(fx | 0, fy | 0, 2, 2);
-    }
-  }
-
-  if (d === 'snow') {
-    // Pine trees
-    for (let i = 0; i < 6; i++) {
-      const tx = ((i * 65 - par * 0.3) % W + W) % W;
-      c.fillStyle = '#5c7a72';
-      c.beginPath();
-      c.moveTo(tx, GY); c.lineTo(tx + 12, GY - 34); c.lineTo(tx + 24, GY);
-      c.fill();
-    }
-    // Animated Airplane in Level 1 (Winnipeg -> Kerala)
-    if (cur === 0) {
-      const ax = (n * 0.8) % (W + 60) - 30;
-      const ay = 28 + Math.sin(n * 0.05) * 4;
-      c.fillStyle = '#ffffff';
-      c.fillRect(ax, ay, 26, 6);
-      c.fillRect(ax + 8, ay - 6, 6, 18);
-      c.fillStyle = '#ff6b8b';
-      c.fillRect(ax, ay - 5, 5, 6);
-      // Contrail hearts
-      if (n % 2 === 0) c.fillRect(ax - 10, ay + 2, 6, 2);
-    }
-    // Multi-depth Snowflakes
-    c.fillStyle = '#ffffff';
-    for (let i = 0; i < 55; i++) {
-      const sz = i % 3 === 0 ? 2 : 1;
-      const sx = (i * 37 + n * (0.3 + (i % 3) * 0.2) + Math.sin(n * 0.05 + i) * 6) % W;
-      const sy = (i * 23 + n * (0.5 + (i % 2) * 0.4)) % GY;
-      c.fillRect(sx | 0, sy | 0, sz, sz);
-    }
-  }
-
-  if (d === 'phone') {
-    // Giant Glowing Smartphones (Winnipeg <-> Rockland County NY)
-    [[36, 42, 'YWG'], [236, 42, 'NYC']].forEach(([x, y, tag]) => {
-      c.fillStyle = '#120c29';
-      c.fillRect(x, y, 46, 78);
-      c.fillStyle = '#bfe3ff';
-      c.fillRect(x + 4, y + 6, 38, 62);
-      // Chat bubbles inside phone
-      c.fillStyle = '#ff6b8b';
-      c.fillRect(x + 8, y + 14 + Math.sin(n * 0.08) * 2, 22, 8);
-      c.fillStyle = '#4a7bd8';
-      c.fillRect(x + 16, y + 28 + Math.cos(n * 0.08) * 2, 22, 8);
-      c.fillStyle = '#ffd166';
-      c.font = '8px monospace';
-      c.fillText(tag, x + 14, y - 4);
-    });
-    // Arcing DM / Heart Packets across the border
-    for (let i = 0; i < 4; i++) {
-      const progArc = ((n * 0.012 + i * 0.25) % 1);
-      const ax = 82 + progArc * 150;
-      const ay = 75 - Math.sin(progArc * Math.PI) * 38;
-      H(c, ax, ay, 2, i % 2 ? '#ff6b8b' : '#ffd166');
-    }
-  }
-
-  if (d === 'rain') {
-    // Rainbow emerging as Josh walks closer to Gabby
-    const rainbowAlpha = Math.min(1, Math.max(0.15, px / 220));
-    c.save();
-    c.globalAlpha = rainbowAlpha;
-    ['#ff6b8b', '#ffd166', '#6fbf73', '#4a7bd8'].forEach((k, i) => {
-      c.strokeStyle = k;
-      c.lineWidth = 4;
-      c.beginPath();
-      c.arc(210 - par * 0.1, GY, 78 - i * 5, Math.PI, 0);
-      c.stroke();
-    });
-    c.restore();
-
-    // Slanted Raindrops + Ground Splash Ripples
-    c.strokeStyle = 'rgba(255,255,255,0.65)';
-    c.lineWidth = 1;
-    for (let i = 0; i < 42; i++) {
-      const rx = (i * 41 + n * 1.5) % W;
-      const ry = (i * 29 + n * 4.2) % GY;
-      c.beginPath();
-      c.moveTo(rx, ry);
-      c.lineTo(rx - 3, ry + 8);
-      c.stroke();
-      if (ry > GY - 8) {
-        c.fillStyle = 'rgba(255,255,255,0.5)';
-        c.fillRect(rx - 3, GY - 1, 5, 1);
+    function triggerSparks(x, y, count = 14) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 2 + Math.random() * 6;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1,
+          color: Math.random() > 0.3 ? '#CCFF00' : '#00F0FF',
+          size: 2 + Math.random() * 3
+        });
       }
     }
-  }
 
-  if (d === 'hearts') {
-    // 2026 Celebration Fireworks in the Sky!
-    if (n % 45 === 0) {
-      const fx = 60 + Math.random() * 200, fy = 24 + Math.random() * 50;
-      const col = ['#ff6b8b', '#ffd166', '#8fd3ff', '#6fbf73'][(Math.random() * 4) | 0];
-      for (let k = 0; k < 16; k++) {
-        const ang = (Math.PI * 2 * k) / 16;
-        FW.push({ x: fx, y: fy, vx: Math.cos(ang) * 1.4, vy: Math.sin(ang) * 1.4, a: 1, c: col });
-      }
-    }
-    for (let i = FW.length - 1; i >= 0; i--) {
-      const f = FW[i];
-      f.x += f.vx; f.y += f.vy; f.vy += 0.02; f.a -= 0.022;
-      c.fillStyle = f.c;
-      c.globalAlpha = Math.max(0, f.a);
-      c.fillRect(f.x | 0, f.y | 0, 2, 2);
-      if (f.a <= 0) FW.splice(i, 1);
-    }
-    c.globalAlpha = 1;
-  }
-
-  // 5. Ground & Textured Pixel Tiles
-  c.fillStyle = v.gr;
-  c.fillRect(0, GY, W, H_CV - GY);
-  c.fillStyle = 'rgba(0,0,0,0.16)';
-  c.fillRect(0, GY, W, 3);
-  for (let i = 0; i < W; i += 16) {
-    const tx = ((i - par) % W + W) % W;
-    c.fillRect(tx | 0, GY + 7, 8, 2);
-    c.fillRect(((tx + 8) % W) | 0, GY + 16, 6, 2);
-  }
-
-  // 6. Interactive Story Checkpoint Props along the path
-  [75, 145, 215].forEach((cx, idx) => {
-    const passed = beat > idx;
-    const bob = Math.sin(n * 0.08 + idx) * 3;
-    // Pedestal
-    c.fillStyle = passed ? '#ffd166' : 'rgba(255,255,255,0.35)';
-    c.fillRect(cx - 6, GY - 6, 12, 6);
-    // Floating Icon
-    c.font = '14px serif';
-    c.fillText(v.props[idx] || '★', cx - 7, (GY - 12 + bob) | 0);
-  });
-
-  // 7. Collectible Floating Memory Hearts (Jump to grab!)
-  levelHearts.forEach(h => {
-    if (h.got) return;
-    const hy = h.y + Math.sin(n * 0.1 + h.x) * 3;
-    H(c, h.x - 6, hy - 5, 2, '#ff6b8b');
-  });
-}
-
-/* ============================================================
-   6. AMBIENT BACKGROUND CANVAS
-   ============================================================ */
-const B = [...Array(20)].map(() => ({
-  x: Math.random() * 110,
-  y: Math.random() * 200,
-  s: 0.12 + Math.random() * 0.25
-}));
-
-function bg() {
-  const g = bc.createLinearGradient(0, 0, 0, 200);
-  g.addColorStop(0, '#1e112d');
-  g.addColorStop(1, '#6a2460');
-  bc.fillStyle = g;
-  bc.fillRect(0, 0, 120, 200);
-  bc.fillStyle = '#fff';
-  for (let i = 0; i < 24; i++) {
-    if ((i + (t >> 5)) % 3) bc.fillRect((i * 19) % 120, (i * 31) % 200, 1, 1);
-  }
-  B.forEach((b, i) => {
-    if (!rm) b.y -= b.s;
-    if (b.y < -10) b.y = 205;
-    H(bc, b.x | 0, b.y | 0, 1, i % 3 ? '#ff6b8b' : '#ffd166');
-  });
-}
-
-/* ============================================================
-   7. UI NAVIGATION, TYPEWRITER & GAME LOOP
-   ============================================================ */
-function show(id) {
-  scr = id;
-  $$('.s').forEach(e => e.classList.toggle('on', e.id === id));
-  $('#mapBtn').hidden = (id !== 'play');
-  if (id === 'play') startBGM();
-}
-
-function typ(el, s, cb, spk = 'JOSH', isGabby = false) {
-  clearInterval(tm);
-  let i = 0;
-  ty = true;
-  el._s = s;
-  el.textContent = '';
-  $('#dlg-spk').textContent = spk;
-  drawPortrait(isGabby, L[cur].outfit);
-  tm = setInterval(() => {
-    el.textContent = s.slice(0, ++i);
-    if (i % 3 === 0) sfx(isGabby ? 740 : 540, 0.025, 'square', 0.018);
-    if (i >= s.length) {
-      clearInterval(tm);
-      ty = false;
-      cb && cb();
-    }
-  }, rm ? 1 : 24);
-}
-
-function build() {
-  const m = $('#lv');
-  m.innerHTML = '';
-  L.forEach((v, i) => {
-    const b = document.createElement('button');
-    b.className = 'lvb' + (i < prog ? ' done' : '');
-    b.disabled = i > prog;
-    const stars = i < prog ? '♥♥♥' : (i === prog ? '▶' : '🔒');
-    b.innerHTML = `
-      <b>${i + 1}</b>
-      <div class="lv-meta">
-        <span>${v.t}</span>
-        <span class="lv-sub">${v.sub}</span>
-      </div>
-      <span class="lv-stars">${stars}</span>
-    `;
-    b.onclick = () => { sfx(660, 0.08, 'triangle'); start(i); };
-    m.append(b);
-  });
-}
-
-function start(i) {
-  cur = i;
-  px = 18;
-  py = 0;
-  vy = 0;
-  beat = 0;
-  dlg = won = false;
-  P.length = 0;
-  FW.length = 0;
-  iris = 0.01;
-  irisTarget = 1;
-  collectedCount = 0;
-  levelHearts = [
-    { x: 55, y: 84, got: false },
-    { x: 120, y: 78, got: false },
-    { x: 185, y: 82, got: false }
-  ];
-  $('#heart-counter').textContent = `♥ 0/3`;
-  $('#prog-fill').style.width = '0%';
-  $('#win').classList.remove('on');
-  $('#ttl').textContent = `Lv ${i + 1}: ${L[i].t}`;
-  $('#stage-year').textContent = L[i].yr;
-  $('#dlg-spk').textContent = 'OUR STORY';
-  $('#dlg-txt').textContent = 'Walk right (▶) and jump (▲) to collect memory hearts!';
-  drawPortrait(false, L[i].outfit);
-  $('#hint-txt').textContent = 'Hold ◀ ▶ to walk • ▲ to Jump';
-  show('play');
-}
-
-function jump() {
-  if (scr !== 'play' || dlg || won) return;
-  if (py === 0) {
-    vy = 4.4;
-    sfx(420, 0.12, 'square', 0.04, 260);
-  }
-}
-
-function sendLoveBurst(x, y, count = 10) {
-  sfx(880, 0.1, 'triangle', 0.05, 220);
-  for (let i = 0; i < count; i++) {
-    P.push({
-      x, y,
-      vx: (Math.random() - 0.5) * 3.2,
-      vy: -Math.random() * 2.8 - 1,
-      k: i % 2
+    widget.addEventListener('pointerdown', (e) => {
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      widget.setPointerCapture(e.pointerId);
+      triggerSparks(e.clientX, e.clientY, 10);
     });
-  }
-}
 
-function adv() {
-  const d = $('#dlg-txt');
-  if (scr !== 'play') return;
-  if (ty) {
-    clearInterval(tm);
-    ty = false;
-    d.textContent = d._s;
-    return;
-  }
-  if (dlg) {
-    sfx(620, 0.05, 'triangle');
-    dlg = false;
-    beat++;
-    d.textContent = beat < 3 ? 'Keep walking toward Gabby →' : 'Gabby is right ahead! →';
-    $('#hint-txt').textContent = beat < 3 ? 'Keep walking →' : 'Gabby is waiting ♥';
-  } else {
-    sendLoveBurst(px + 10, 110 - py, 6);
-  }
-}
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
 
-function frame() {
-  t++;
-  bg();
+      // Diagonal, horizontal, and vertical swipe impulse
+      velZ += (dx - dy) * 0.65;
+      velY += dx * 0.55;
+      velX -= dy * 0.55;
+    });
 
-  if (scr === 'play') {
-    const v = L[cur];
+    window.addEventListener('pointerup', (e) => {
+      if (isDragging) {
+        isDragging = false;
+        triggerSparks(e.clientX, e.clientY, 18);
+      }
+    });
 
-    // Smooth Iris Circle Transition
-    iris += (irisTarget - iris) * 0.08;
+    // Edge-swipe gesture anywhere on screen also imparts spin to the football
+    let touchStart = null;
+    window.addEventListener('touchstart', (e) => {
+      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
 
-    if (!dlg && !won) {
-      px = Math.max(8, Math.min(262, px + dir * 1.65));
-      if (dir) face = dir < 0;
+    window.addEventListener('touchmove', (e) => {
+      if (!touchStart || isDragging) return;
+      const dx = e.touches[0].clientX - touchStart.x;
+      const dy = e.touches[0].clientY - touchStart.y;
+      velZ += (dx + dy) * 0.08;
+      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
 
-      // Jump Physics
-      if (py > 0 || vy > 0) {
-        py += vy;
-        vy -= 0.28;
-        if (py <= 0) { py = 0; vy = 0; }
+    function updateBallPhysics() {
+      // Apply angular velocity
+      rotZ += velZ;
+      rotX += velX;
+      rotY += velY;
+
+      // Fidget-spinner low-friction bearing decay
+      velZ *= 0.975;
+      velX *= 0.96;
+      velY *= 0.96;
+
+      // Keep subtle ambient idle rotation
+      if (Math.abs(velZ) < 0.8 && !isDragging) {
+        velZ += (0.8 - velZ) * 0.02;
       }
 
-      // Update Progress Bar
-      $('#prog-fill').style.width = Math.min(100, (px / 254) * 100) + '%';
+      ballCore.style.transform = `perspective(300px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+      ballPattern.style.transform = `translate(${Math.sin(rotY * 0.03) * 4}px, ${Math.sin(rotX * 0.03) * 4}px)`;
 
-      // Collect Floating Hearts
-      levelHearts.forEach(h => {
-        if (!h.got && Math.abs((px + 10) - h.x) < 16 && Math.abs((110 - py) - h.y) < 20) {
-          h.got = true;
-          collectedCount++;
-          $('#heart-counter').textContent = `♥ ${collectedCount}/3`;
-          sendLoveBurst(h.x, h.y, 12);
+      const rpm = Math.round(Math.abs(velZ) * 14);
+      rpmReadout.textContent = rpm > 18 ? `${rpm} RPM // OVERDRIVE` : `${rpm} RPM // ACTIVE`;
+      rpmReadout.style.color = rpm > 120 ? '#00F0FF' : '#CCFF00';
+
+      requestAnimationFrame(updateBallPhysics);
+    }
+    updateBallPhysics();
+
+    // =========================================================================
+    // 2. CANVAS PARTICLE SYSTEM FOR KINETIC FEEDBACK
+    // =========================================================================
+    const canvas = document.getElementById('fx-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function renderParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.15; // slight gravity
+        p.life -= 0.025;
+
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+          continue;
         }
+
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
+
+    // =========================================================================
+    // 3. BENGALURU TURF DATA & 3D TILT CARD RENDERING
+    // =========================================================================
+    const turfs = [
+      {
+        id: 1,
+        name: "Tiento Sports Arena",
+        area: "Indiranagar • 100ft Rd",
+        format: "5v5",
+        time: "21:00 - 22:00",
+        spotsLeft: 1,
+        totalSpots: 10,
+        perPlayer: 160,
+        tag: "FILLING FAST"
+      },
+      {
+        id: 2,
+        name: "XLR8 Indoor Stadium",
+        area: "Hennur Main Road",
+        format: "7v7",
+        time: "22:00 - 23:00",
+        spotsLeft: 2,
+        totalSpots: 14,
+        perPlayer: 185,
+        tag: "PRO FIFA TURF"
+      },
+      {
+        id: 3,
+        name: "Play Arena Rooftop",
+        area: "Sarjapur Road",
+        format: "5v5",
+        time: "20:30 - 21:30",
+        spotsLeft: 1,
+        totalSpots: 10,
+        perPlayer: 140,
+        tag: "STUDENT OFF-PEAK"
+      }
+    ];
+
+    const turfGrid = document.getElementById('turf-grid');
+
+    function renderTurfs(filter = "ALL") {
+      turfGrid.innerHTML = "";
+      const filtered = filter === "ALL" ? turfs : turfs.filter(t => t.format === filter);
+
+      filtered.forEach((turf, idx) => {
+        const stage = document.createElement('div');
+        stage.className = "tilt-stage";
+        stage.style.animation = `textRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.1}s both`;
+
+        stage.innerHTML = `
+          <div class="tilt-card rounded-3xl bg-[#0F141F] border border-white/10 p-6 flex flex-col justify-between h-full cursor-pointer hover:border-[#CCFF00]/50">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-2.5 py-1 rounded-md bg-[#CCFF00]/15 text-[#CCFF00] font-mono-tech text-[11px] font-bold">${turf.format} • ${turf.tag}</span>
+                <span class="text-xs font-mono-tech text-slate-400">${turf.time}</span>
+              </div>
+              <h3 class="font-display font-bold text-xl text-white mb-1">${turf.name}</h3>
+              <p class="text-xs text-slate-400 font-mono-tech">${turf.area}</p>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-white/10">
+              <div class="flex items-center justify-between text-xs font-mono-tech mb-2">
+                <span class="text-slate-300">LOBBY: ${turf.totalSpots - turf.spotsLeft}/${turf.totalSpots} LOCKED</span>
+                <span class="text-[#00F0FF] font-bold">${turf.spotsLeft} SPOT LEFT</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden mb-5">
+                <div class="h-full bg-gradient-to-r from-[#CCFF00] to-[#00F0FF]" style="width: ${((turf.totalSpots - turf.spotsLeft) / turf.totalSpots) * 100}%"></div>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-mono-tech text-slate-400 block">UPI SPLIT</span>
+                  <span class="font-display font-bold text-2xl text-white">₹${turf.perPlayer}</span>
+                </div>
+                <button class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-[#CCFF00] hover:text-black font-mono-tech text-xs font-bold transition-colors">
+                  CLAIM SPOT →
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const card = stage.querySelector('.tilt-card');
+
+        // 3D Tilt & Specular Sheen Physics
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = ((y - centerY) / centerY) * -8;
+          const rotateY = ((x - centerX) / centerX) * 8;
+
+          card.style.setProperty('--mx', `${x}px`);
+          card.style.setProperty('--my', `${y}px`);
+          card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = `rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+        });
+
+        card.addEventListener('click', (e) => {
+          triggerSparks(e.clientX, e.clientY, 22);
+          openDrawer(turf);
+        });
+
+        turfGrid.appendChild(stage);
       });
-
-      // Story Checkpoints at x = 70, 140, 210
-      if (beat < 3 && px >= 68 + beat * 70) {
-        dlg = true;
-        dir = 0;
-        sfx(700, 0.09, 'triangle');
-        sendLoveBurst(px + 10, 100, 8);
-        const isGabbyLine = (cur === 5 && beat === 1);
-        typ($('#dlg-txt'), v.l[beat], null, isGabbyLine ? 'GABBY' : `JOSH • MEMORY ${beat + 1}/3`, isGabbyLine);
-      }
-
-      // Level Complete when reaching Gabby at x = 252
-      if (beat === 3 && px >= 250) {
-        won = true;
-        dir = 0;
-        sfx(523, 0.1, 'triangle', 0.06);
-        setTimeout(() => sfx(659, 0.1, 'triangle', 0.06), 100);
-        setTimeout(() => sfx(784, 0.14, 'triangle', 0.06), 200);
-        setTimeout(() => sfx(1046, 0.25, 'triangle', 0.06), 310);
-        sendLoveBurst(268, 102, 35);
-        drawPortrait(true, v.outfit);
-        $('#dlg-spk').textContent = 'GABBY ♥ JOSH';
-        $('#dlg-txt').textContent = 'I love you so much! ♥';
-        $('#win-sub').textContent = `${v.t} complete! (${collectedCount}/3 bonus hearts)`;
-        $('#win').classList.add('on');
-      }
     }
 
-    // Render Scene & Characters
-    scene(cv, v, t);
+    renderTurfs();
 
-    const walkCycle = (dir && !dlg && !won && py === 0) ? ((t >> 2) % 4) : 0;
-    const blinkG = (t % 140) < 5;
-    const blinkJ = ((t + 60) % 130) < 5;
-
-    // Draw Gabby waiting at x=272
-    drawPixelChar(cv, 272, 110 + Math.sin(t / 18) * 1.2, true, v.outfit, true, 0, blinkG);
-    // Floating Heart above Gabby
-    H(cv, 276, 96 + Math.sin(t / 12) * 2, 1.5, '#ff6b8b');
-
-    // Draw Josh (with Jump height py)
-    drawPixelChar(cv, px, 110 - py, false, v.outfit, face, walkCycle, blinkJ);
-
-    // Render Heart Particles
-    P.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.06;
-      H(cv, p.x | 0, p.y | 0, 2, p.k ? '#ff6b8b' : '#ffd166');
+    // Format Filter Pills
+    document.querySelectorAll('.format-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.format-pill').forEach(b => {
+          b.classList.remove('bg-white', 'text-black');
+          b.classList.add('text-slate-400');
+        });
+        btn.classList.add('bg-white', 'text-black');
+        btn.classList.remove('text-slate-400');
+        renderTurfs(btn.dataset.format);
+      });
     });
-    if (won && t % 10 === 0) sendLoveBurst(268, 102, 2);
-    while (P.length > 90) P.shift();
 
-    // Iris Circle Mask Effect
-    if (iris < 0.98) {
-      cv.save();
-      cv.fillStyle = '#1e112d';
-      cv.beginPath();
-      cv.rect(0, 0, 320, 180);
-      cv.arc(px + 10, 120, Math.max(1, iris * 340), 0, Math.PI * 2, true);
-      cv.fill();
-      cv.restore();
+    // =========================================================================
+    // 4. INTERACTIVE SLIDE-OVER SQUAD & UPI SPLIT DRAWER
+    // =========================================================================
+    const drawer = document.getElementById('booking-drawer');
+    const backdrop = document.getElementById('drawer-backdrop');
+    const panel = document.getElementById('drawer-panel');
+    const squadList = document.getElementById('squad-list');
+    const confirmBtn = document.getElementById('confirm-slot-btn');
+
+    const samplePlayers = ["Rudra P.", "Aarav K.", "Vikram S.", "Rohan M.", "Siddharth N.", "Kabir D.", "Aditya R.", "Pranav V.", "Nikhil T."];
+
+    function openDrawer(turf) {
+      document.getElementById('drawer-turf-name').textContent = turf.name;
+      document.getElementById('drawer-turf-meta').textContent = `${turf.area.toUpperCase()} • ${turf.format} • ${turf.time}`;
+      document.getElementById('drawer-price').textContent = `₹${turf.perPlayer}`;
+      document.getElementById('squad-count').textContent = `${turf.totalSpots - turf.spotsLeft} / ${turf.totalSpots}`;
+
+      squadList.innerHTML = samplePlayers.slice(0, turf.totalSpots - 1).map(name => `
+        <div class="px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono-tech flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>${name}</span>
+        </div>
+      `).join('') + `
+        <div id="open-slot-pill" class="px-3 py-2 rounded-xl border border-dashed border-[#CCFF00] text-[#CCFF00] text-xs font-mono-tech flex items-center justify-center animate-pulse">
+          + YOUR SPOT
+        </div>
+      `;
+
+      confirmBtn.textContent = "LOCK FINAL SPOT & SPLIT PAY";
+      confirmBtn.classList.remove('bg-emerald-400');
+      confirmBtn.classList.add('bg-[#CCFF00]');
+
+      drawer.classList.remove('pointer-events-none');
+      backdrop.classList.add('opacity-100');
+      panel.classList.remove('translate-x-full');
     }
-  }
-  requestAnimationFrame(frame);
-}
 
-/* ============================================================
-   8. BUTTONS, TOUCH & KEYBOARD CONTROLS
-   ============================================================ */
-$('#go').onclick = () => {
-  initAudio();
-  sfx(660, 0.1, 'triangle');
-  show('msg');
-  $('#beg').hidden = true;
-  typ($('#big'), 'I love you, Gabby. ♥', () => { $('#beg').hidden = false; });
-};
-$('#beg').onclick = () => { sfx(784, 0.1, 'triangle'); build(); show('map'); };
-$('#nx').onclick = () => {
-  prog = Math.max(prog, cur + 1);
-  try { localStorage.setItem('jg', prog); } catch(e) {}
-  if (cur === L.length - 1) show('end');
-  else start(cur + 1);
-};
-$('#again').onclick = () => { build(); show('map'); };
-$('#dlg').onclick = $('#A').onclick = adv;
-$('#B').onclick = () => sendLoveBurst(px + 10, 108 - py, 10);
-$('#bU').onpointerdown = e => { e.preventDefault(); jump(); };
+    function closeDrawer() {
+      backdrop.classList.remove('opacity-100');
+      panel.classList.add('translate-x-full');
+      setTimeout(() => drawer.classList.add('pointer-events-none'), 400);
+    }
 
-const hold = (id, d) => {
-  const e = $(id);
-  e.onpointerdown = ev => { ev.preventDefault(); dir = d; };
-  ['onpointerup', 'onpointerleave', 'onpointercancel'].forEach(k => e[k] = () => { dir = 0; });
-};
-hold('#bL', -1);
-hold('#bR', 1);
-
-addEventListener('keydown', e => {
-  if (e.key === 'ArrowLeft' || e.key === 'a') dir = -1;
-  if (e.key === 'ArrowRight' || e.key === 'd') dir = 1;
-  if (e.key === 'ArrowUp' || e.key === 'w') jump();
-  if (e.key === ' ' || e.key === 'Enter') {
-    if (scr === 'play') { e.preventDefault(); adv(); }
-  }
-});
-addEventListener('keyup', e => {
-  if (['ArrowLeft', 'ArrowRight', 'a', 'd'].includes(e.key)) dir = 0;
-});
-
-/* ============================================================
-   9. POLAROID PHOTO LOADER & LIGHTBOX
-   ============================================================ */
-// Generates cute pixel-art placeholder Polaroids until your original HTML photos are loaded
-function makePixelPlaceholder(label, bg1, bg2) {
-  const c = document.createElement('canvas');
-  c.width = 160; c.height = 200;
-  const x = c.getContext('2d');
-  const g = x.createLinearGradient(0, 0, 0, 200);
-  g.addColorStop(0, bg1); g.addColorStop(1, bg2);
-  x.fillStyle = g; x.fillRect(0, 0, 160, 200);
-  H(x, 64, 50, 4, '#ff6b8b');
-  drawPixelChar(x, 52, 96, false, 'casual', false, 0, false);
-  drawPixelChar(x, 86, 96, true, 'casual', true, 0, false);
-  x.fillStyle = '#fff1d6'; x.font = '12px monospace'; x.textAlign = 'center';
-  x.fillText(label, 80, 165);
-  return c.toDataURL();
-}
-
-const PHOTO_IDS = ['img-hero', 'img-end1', 'img-end2', 'img-end3', 'img-end4', 'img-end5'];
-const DEFAULT_PICS = [
-  makePixelPlaceholder('Josh & Gabby', '#2b1a3f', '#7a2f6e'),
-  makePixelPlaceholder('Mirror Selfie', '#3a2a7a', '#d46aa0'),
-  makePixelPlaceholder('Night Together', '#150d38', '#4a2c7a'),
-  makePixelPlaceholder('Beach Memory', '#4a7bd8', '#ffd166'),
-  makePixelPlaceholder('Helmet Buddies', '#2a2160', '#6a4bb0'),
-  makePixelPlaceholder('Cutest Gabby', '#ff6b8b', '#ffd166')
-];
-
-// Load saved photos from localStorage or fallback to cute pixel art
-PHOTO_IDS.forEach((id, idx) => {
-  let saved = null;
-  try { saved = localStorage.getItem('jg_pic_' + idx); } catch(e) {}
-  $('#' + id).src = saved || DEFAULT_PICS[idx];
-});
-
-// One-click importer: select your original "Josh & Gabby_ Our Story.html" to extract all 5 Base64 photos automatically!
-$('#importHtml').onchange = async (e) => {
-  const files = [...e.target.files];
-  if (!files.length) return;
-  if (files[0].name.endsWith('.html') || files[0].name.endsWith('.htm')) {
-    const text = await files[0].text();
-    const matches = [...text.matchAll(/src="(data:image\/[^"]+)"/g)].map(m => m[1]);
-    matches.forEach((src, idx) => {
-      if (PHOTO_IDS[idx]) {
-        $('#' + PHOTO_IDS[idx]).src = src;
-        try { localStorage.setItem('jg_pic_' + idx, src); } catch(err) {}
-      }
+    document.getElementById('close-drawer').addEventListener('click', closeDrawer);
+    backdrop.addEventListener('click', closeDrawer);
+    document.getElementById('btn-instant-match').addEventListener('click', (e) => {
+      triggerSparks(e.clientX, e.clientY, 25);
+      velZ += 35; // Spin the top-right football when launching matchmaking!
+      openDrawer(turfs[0]);
     });
-    if (matches.length) alert(`✨ Imported all ${matches.length} Polaroid photos from your original HTML file!`);
-  }
-};
 
-function openLightbox(idx, cap) {
-  sfx(720, 0.07, 'triangle');
-  $('#lb-img').src = $('#' + PHOTO_IDS[idx]).src;
-  $('#lb-cap').textContent = cap;
-  $('#lightbox').classList.add('on');
-}
-
-frame();
-</script>
+    confirmBtn.addEventListener('click', (e) => {
+      triggerSparks(e.clientX, e.clientY, 45);
+      velZ += 65; // Overdrive spin on booking confirmation
+      const openPill = document.getElementById('open-slot-pill');
+      if (openPill) {
+        openPill.className = "px-3 py-2 rounded-xl bg-[#CCFF00]/20 border border-[#CCFF00] text-[#CCFF00] text-xs font-mono-tech flex items-center gap-2 font-bold";
+        openPill.innerHTML = `<span class="w-2 h-2 rounded-full bg-[#CCFF00]"></span><span>YOU (LOCKED)</span>`;
+      }
+      document.getElementById('squad-count').textContent = "10 / 10 FULL";
+      confirmBtn.textContent = "✓ SPOT LOCKED // UPI SPLIT SENT";
+      confirmBtn.classList.remove('bg-[#CCFF00]');
+      confirmBtn.classList.add('bg-emerald-400');
+    });
+  </script>
 </body>
 </html>
